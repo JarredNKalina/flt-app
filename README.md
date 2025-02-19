@@ -1,14 +1,20 @@
 # For the Love of Trivia API
 
-## Motivation: 
+## Motivation:
 
 The end goal of this api is to create an open-source database of both text and image question. I want to do it... For the Love of Trivia!
 
-## API:
+## API Usage:
 
 ## Submitting questions:
 
 ## Question Approval Process:
+
+## Technical stuff
+
+- Running on your own machine
+
+run command `npm run docker:up`
 
 # Links
 

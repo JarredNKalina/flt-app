@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Question {
+  id         String       @id @default(uuid())
+  categoryId String
+  question   String
+  difficulty Difficulty
+  isNiche    Boolean
+  type       QuestionType
+  answerId   String
+  isApproved Boolean
+  category          Category           @relation(fields: [categoryId], references: [id])
+  answer            TextOption         @relation(fields: [answerId], references: [id])
+  falseTextOptions  FalseTextOption[]
+  falseImageOptions FalseImageOption[]
+  questionTags      QuestionTag[]
+}
+
+model Category {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  questions Question[]
+}
+
+model Tag {
+  id           String        @id @default(uuid())
+  name         String        @unique
+  questionTags QuestionTag[]
+}
+
+model QuestionTag {
+  questionId String
+  tagId      String
+
+  question Question @relation(fields: [questionId], references: [id])
+  tag      Tag      @relation(fields: [tagId], references: [id])
+
+  @@id([questionId, tagId])
+}
+
+model FalseTextOption {
+  questionId String
+  answerId   String
+
+  question Question   @relation(fields: [questionId], references: [id])
+  answer   TextOption @relation(fields: [answerId], references: [id])
+
+  @@id([questionId, answerId])
+}
+
+model FalseImageOption {
+  questionId String
+  answerId   String
+
+  question Question    @relation(fields: [questionId], references: [id])
+  answer   ImageOption @relation(fields: [answerId], references: [id])
+
+  @@id([questionId, answerId])
+}
+
+model TextOption {
+  id   String @id @default(uuid())
+  text String
+
+  questions        Question[]
+  falseTextOptions FalseTextOption[]
+}
+
+model ImageOption {
+  id     String @id @default(uuid())
+  url    String
+  height BigInt
+  width  BigInt
+  size   BigInt
+
+  falseImageOptions FalseImageOption[]
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum QuestionType {
+  TEXT
+  IMAGE
+}
