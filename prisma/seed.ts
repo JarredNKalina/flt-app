@@ -159,9 +159,9 @@ async function main() {
       category: { connect: { name: 'culture' } },
       questionTags: {
         create: [
-          { tag: { create: { name: 'renaissance' } } },
-          { tag: { create: { name: 'famous painters' } } },
-          { tag: { create: { name: 'art history' } } }
+          { tag: { connectOrCreate: { create: { name: 'renaissance' }, where: { name: 'renaissance' } } } },
+          { tag: { connectOrCreate: { create: { name: 'art history' }, where: { name: 'art history' } } } },
+          { tag: { connectOrCreate: { create: { name: 'famous painters' }, where: { name: 'famous painters' } } } }
         ]
       },
       falseTextOptions: {

@@ -9,9 +9,12 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "nodemon",
-    "db:deploy": "npx prisma migrate deploy && npx prisma generate && npm run db:seed",
-    "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down"
+    "docker:dev": "npm run docker:down && docker-compose -f docker/development/docker-compose.dev.yml up --build --remove-orphans -d",
+    "docker:down": "npm run docker:dev:down",
+    "docker:dev:down": "docker-compose -f docker/development/docker-compose.dev.yml down",
+    "db:seed": "ts-node prisma/seed.ts",
+    "prisma:generate": "prisma generate",
+    "build": "rm -rf dist && prisma generate && tsc"
   },
   "keywords": [],
   "author": "",

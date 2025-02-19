@@ -1,0 +1,34 @@
+version: '3.4'
+services:
+  dev-api:
+    container_name: flt-dev-api
+    build:
+      context: ../../
+      dockerfile: docker/development/Dockerfile
+      target: development
+    volumes:
+      - ../../:/app
+      - /app/node_modules
+    ports:
+      - 4040:4040
+    command: npm run dev
+    depends_on:
+      - dev-db
+    env_file:
+      - ../../.env.development
+
+  dev-db:
+    image: postgres:14
+    restart: always
+    container_name: flt-dev-db
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=prisma
+      - POSTGRES_PASSWORD=prisma
+      - POSTGRES_DB=flt-dev-db
+    volumes:
+      - flt-dev-db:/var/lib/postgresql/data
+
+volumes:
+  flt-dev-db: {}
