@@ -1,4 +1,4 @@
-# For the Love of Trivia API
+# For the Love of Trivia APP
 
 ## Motivation:
 
