@@ -8,25 +8,18 @@ datasource db {
 }
 
 model Question {
-  id         String       @id @default(uuid())
-  categoryId String
-  question   String
-  difficulty Difficulty
-  isNiche    Boolean
-  type       QuestionType
-  answerId   String
-  isApproved Boolean
-  category          Category           @relation(fields: [categoryId], references: [id])
+  id                String             @id @default(uuid())
+  question          String
+  difficulty        Difficulty
+  isNiche           Boolean
+  type              QuestionType
+  answerId          String
+  status            Status
   answer            TextOption         @relation(fields: [answerId], references: [id])
   falseTextOptions  FalseTextOption[]
   falseImageOptions FalseImageOption[]
   questionTags      QuestionTag[]
-}
-
-model Category {
-  id        String     @id @default(uuid())
-  name      String     @unique
-  questions Question[]
+  rejections        Rejection[]
 }
 
 model Tag {
@@ -83,10 +76,23 @@ model ImageOption {
   falseImageOptions FalseImageOption[]
 }
 
+model Rejection {
+  id         String   @id @default(uuid())
+  questionId String
+  reason     String
+  question   Question @relation(fields: [questionId], references: [id])
+}
+
 enum Difficulty {
   EASY
   MEDIUM
   HARD
+}
+
+enum Status {
+  APPROVED
+  PENDING
+  REJECTED
 }
 
 enum QuestionType {

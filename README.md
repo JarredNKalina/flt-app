@@ -1,4 +1,4 @@
-# For the Love of Trivia APP
+# For the Love of Trivia
 
 ## Motivation:
 
@@ -12,9 +12,6 @@ The end goal of this api is to create an open-source database of both text and i
 
 ## Technical stuff
 
-- Running on your own machine
-
-run command `npm run docker:up`
 
 # Links
 

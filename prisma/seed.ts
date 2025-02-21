@@ -3,35 +3,20 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  const categories = await prisma.category.createMany({
-    data: [
-      { name: 'general_knowledge' },
-      { name: 'entertainment' },
-      { name: 'history' },
-      { name: 'geography' },
-      { name: 'sports' },
-      { name: 'science' },
-      { name: 'literature' },
-      { name: 'food_and_drink' },
-      { name: 'technology' },
-      { name: 'culture' }
-    ]
-  })
-
   const question1 = await prisma.question.create({
     data: {
       question: 'Which Italian artist shocked 1485 Florence with his large nude painting of the birth of a goddess?',
       type: 'TEXT',
       isNiche: false,
       difficulty: 'EASY',
-      isApproved: true,
-      answer: { create: { text: 'Sandro Botticelli ' } },
-      category: { connect: { name: 'culture' } },
+      status: 'REJECTED',
+      rejections: { createMany: { data: [{ reason: 'The answer is incorrect.' }] } },
+      answer: { create: { text: 'Al Pacino ' } },
       questionTags: {
         create: [
-          { tag: { create: { name: '15th century art' } } },
-          { tag: { create: { name: 'renaissance' } } },
-          { tag: { create: { name: 'art' } } }
+          { tag: { connectOrCreate: { create: { name: '15th century art' }, where: { name: '15th century art' } } } },
+          { tag: { connectOrCreate: { create: { name: 'renaissance' }, where: { name: 'renaissance' } } } },
+          { tag: { connectOrCreate: { create: { name: 'art' }, where: { name: 'art' } } } }
         ]
       },
       falseTextOptions: {
@@ -50,14 +35,13 @@ async function main() {
       type: 'TEXT',
       isNiche: false,
       difficulty: 'MEDIUM',
-      isApproved: true,
+      status: 'APPROVED',
       answer: { create: { text: 'Red' } },
-      category: { connect: { name: 'culture' } },
       questionTags: {
         create: [
-          { tag: { create: { name: 'language' } } },
-          { tag: { create: { name: 'german' } } },
-          { tag: { create: { name: 'translation' } } }
+          { tag: { connectOrCreate: { create: { name: 'language' }, where: { name: 'language' } } } },
+          { tag: { connectOrCreate: { create: { name: 'german' }, where: { name: 'german' } } } },
+          { tag: { connectOrCreate: { create: { name: 'translation' }, where: { name: 'translation' } } } }
         ]
       },
       falseTextOptions: {
@@ -76,14 +60,13 @@ async function main() {
       type: 'TEXT',
       isNiche: false,
       difficulty: 'EASY',
-      isApproved: true,
+      status: 'APPROVED',
       answer: { create: { text: 'Loitering' } },
-      category: { connect: { name: 'culture' } },
       questionTags: {
         create: [
-          { tag: { create: { name: 'crime' } } },
-          { tag: { create: { name: 'law' } } },
-          { tag: { create: { name: 'society' } } }
+          { tag: { connectOrCreate: { create: { name: 'crime' }, where: { name: 'crime' } } } },
+          { tag: { connectOrCreate: { create: { name: 'law' }, where: { name: 'law' } } } },
+          { tag: { connectOrCreate: { create: { name: 'society' }, where: { name: 'society' } } } }
         ]
       },
       falseTextOptions: {
@@ -102,14 +85,13 @@ async function main() {
       type: 'TEXT',
       isNiche: false,
       difficulty: 'HARD',
-      isApproved: true,
+      status: 'APPROVED',
       answer: { create: { text: 'Fettuccine' } },
-      category: { connect: { name: 'food_and_drink' } },
       questionTags: {
         create: [
-          { tag: { create: { name: 'food' } } },
-          { tag: { create: { name: 'words' } } },
-          { tag: { create: { name: 'language' } } }
+          { tag: { connectOrCreate: { create: { name: 'food' }, where: { name: 'food' } } } },
+          { tag: { connectOrCreate: { create: { name: 'words' }, where: { name: 'words' } } } },
+          { tag: { connectOrCreate: { create: { name: 'language' }, where: { name: 'language' } } } }
         ]
       },
       falseTextOptions: {
@@ -128,14 +110,13 @@ async function main() {
       type: 'TEXT',
       isNiche: false,
       difficulty: 'EASY',
-      isApproved: true,
+      status: 'APPROVED',
       answer: { create: { text: 'Gold' } },
-      category: { connect: { name: 'science' } },
       questionTags: {
         create: [
-          { tag: { create: { name: 'chemistry' } } },
-          { tag: { create: { name: 'periodic table' } } },
-          { tag: { create: { name: 'elements' } } }
+          { tag: { connectOrCreate: { create: { name: 'chemistry' }, where: { name: 'chemistry' } } } },
+          { tag: { connectOrCreate: { create: { name: 'periodic table' }, where: { name: 'periodic table' } } } },
+          { tag: { connectOrCreate: { create: { name: 'elements' }, where: { name: 'elements' } } } }
         ]
       },
       falseTextOptions: {
@@ -154,9 +135,8 @@ async function main() {
       type: 'TEXT',
       isNiche: false,
       difficulty: 'MEDIUM',
-      isApproved: true,
+      status: 'APPROVED',
       answer: { create: { text: 'Michelangelo' } },
-      category: { connect: { name: 'culture' } },
       questionTags: {
         create: [
           { tag: { connectOrCreate: { create: { name: 'renaissance' }, where: { name: 'renaissance' } } } },
@@ -180,14 +160,13 @@ async function main() {
       type: 'TEXT',
       isNiche: false,
       difficulty: 'EASY',
-      isApproved: true,
+      status: 'PENDING',
       answer: { create: { text: 'Mars' } },
-      category: { connect: { name: 'science' } },
       questionTags: {
         create: [
-          { tag: { create: { name: 'space' } } },
-          { tag: { create: { name: 'planets' } } },
-          { tag: { create: { name: 'astronomy' } } }
+          { tag: { connectOrCreate: { create: { name: 'space' }, where: { name: 'space' } } } },
+          { tag: { connectOrCreate: { create: { name: 'planets' }, where: { name: 'planets' } } } },
+          { tag: { connectOrCreate: { create: { name: 'astronomy' }, where: { name: 'astronomy' } } } }
         ]
       },
       falseTextOptions: {
@@ -206,15 +185,15 @@ async function main() {
       type: 'TEXT',
       isNiche: false,
       difficulty: 'MEDIUM',
-      isApproved: true,
+      status: 'REJECTED',
+      rejections: { createMany: { data: [{ reason: 'Question is too easy' }] } },
       answer: { create: { text: 'Ottawa' } },
-      category: { connect: { name: 'geography' } },
       questionTags: {
         create: [
-          { tag: { create: { name: 'countries' } } },
-          { tag: { create: { name: 'capitals' } } },
-          { tag: { create: { name: 'north america' } } },
-          { tag: { create: { name: 'canada' } } }
+          { tag: { connectOrCreate: { create: { name: 'countries' }, where: { name: 'countries' } } } },
+          { tag: { connectOrCreate: { create: { name: 'capitals' }, where: { name: 'capitals' } } } },
+          { tag: { connectOrCreate: { create: { name: 'north america' }, where: { name: 'north america' } } } },
+          { tag: { connectOrCreate: { create: { name: 'canada' }, where: { name: 'canada' } } } }
         ]
       },
       falseTextOptions: {
@@ -233,14 +212,13 @@ async function main() {
       type: 'TEXT',
       isNiche: false,
       difficulty: 'HARD',
-      isApproved: true,
+      status: 'APPROVED',
       answer: { create: { text: '1912' } },
-      category: { connect: { name: 'history' } },
       questionTags: {
         create: [
-          { tag: { create: { name: 'maritime history' } } },
-          { tag: { create: { name: 'famous disasters' } } },
-          { tag: { create: { name: 'early 20th century' } } }
+          { tag: { connectOrCreate: { create: { name: 'maritime' }, where: { name: 'maritime' } } } },
+          { tag: { connectOrCreate: { create: { name: 'disasters' }, where: { name: 'disasters' } } } },
+          { tag: { connectOrCreate: { create: { name: '20th century' }, where: { name: '20th century' } } } }
         ]
       },
       falseTextOptions: {
@@ -255,18 +233,16 @@ async function main() {
 
   const question10 = await prisma.question.create({
     data: {
-      question: 'Which U.S. state is known as the "Sunshine State"?',
+      question: 'Which U.S. status is known as the "Sunshine status"?',
       type: 'TEXT',
       isNiche: false,
       difficulty: 'EASY',
-      isApproved: true,
+      status: 'PENDING',
       answer: { create: { text: 'Florida' } },
-      category: { connect: { name: 'geography' } },
       questionTags: {
         create: [
-          { tag: { create: { name: 'U.S. states' } } },
-          { tag: { create: { name: 'nicknames' } } },
-          { tag: { create: { name: 'travel' } } }
+          { tag: { connectOrCreate: { create: { name: 'statuss' }, where: { name: 'statuss' } } } },
+          { tag: { connectOrCreate: { create: { name: 'nicknames' }, where: { name: 'nicknames' } } } }
         ]
       },
       falseTextOptions: {
