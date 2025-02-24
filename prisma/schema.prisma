@@ -11,7 +11,7 @@ model Question {
   id                String             @id @default(uuid())
   question          String
   difficulty        Difficulty
-  isNiche           Boolean
+  isNiche           Boolean            @default(false)
   type              QuestionType
   answerId          String
   status            Status

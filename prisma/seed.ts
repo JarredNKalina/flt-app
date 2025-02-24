@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-async function main() {
+export async function main() {
   const question1 = await prisma.question.create({
     data: {
       question: 'Which Italian artist shocked 1485 Florence with his large nude painting of the birth of a goddess?',
