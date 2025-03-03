@@ -7,73 +7,56 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id            String      @id @default(uuid())
+  email         String      @unique
+  role          Role        @default(USER)
+  name          String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  Question      Question[]
+  Rejection     Rejection[]
+  emailVerified Boolean
+  sessions      Session[]
+  accounts      Account[]
+}
+
 model Question {
-  id                String             @id @default(uuid())
-  question          String
-  difficulty        Difficulty
-  isNiche           Boolean            @default(false)
-  type              QuestionType
-  answerId          String
-  status            Status
-  answer            TextOption         @relation(fields: [answerId], references: [id])
-  falseTextOptions  FalseTextOption[]
-  falseImageOptions FalseImageOption[]
-  questionTags      QuestionTag[]
-  rejections        Rejection[]
+  id           String        @id @default(uuid())
+  question     String
+  difficulty   Difficulty
+  isNiche      Boolean       @default(false)
+  type         QuestionType
+  status       Status
+  answer       String
+  incorrect1   String
+  incorrect2   String
+  incorrect3   String
+  questionTags QuestionTag[]
+  rejections   Rejection[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  user         User          @relation(fields: [userId], references: [id])
+  userId       String
 }
 
 model Tag {
   id           String        @id @default(uuid())
   name         String        @unique
   questionTags QuestionTag[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 model QuestionTag {
   questionId String
   tagId      String
-
-  question Question @relation(fields: [questionId], references: [id])
-  tag      Tag      @relation(fields: [tagId], references: [id])
+  question   Question @relation(fields: [questionId], references: [id])
+  tag        Tag      @relation(fields: [tagId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@id([questionId, tagId])
-}
-
-model FalseTextOption {
-  questionId String
-  answerId   String
-
-  question Question   @relation(fields: [questionId], references: [id])
-  answer   TextOption @relation(fields: [answerId], references: [id])
-
-  @@id([questionId, answerId])
-}
-
-model FalseImageOption {
-  questionId String
-  answerId   String
-
-  question Question    @relation(fields: [questionId], references: [id])
-  answer   ImageOption @relation(fields: [answerId], references: [id])
-
-  @@id([questionId, answerId])
-}
-
-model TextOption {
-  id   String @id @default(uuid())
-  text String
-
-  questions        Question[]
-  falseTextOptions FalseTextOption[]
-}
-
-model ImageOption {
-  id     String @id @default(uuid())
-  url    String
-  height BigInt
-  width  BigInt
-  size   BigInt
-
-  falseImageOptions FalseImageOption[]
 }
 
 model Rejection {
@@ -81,6 +64,55 @@ model Rejection {
   questionId String
   reason     String
   question   Question @relation(fields: [questionId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+}
+
+enum Role {
+  USER
+  ADMIN
 }
 
 enum Difficulty {

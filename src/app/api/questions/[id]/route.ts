@@ -3,6 +3,8 @@ import { patchTextQuestionInput } from '@/validation/questions'
 import { Prisma } from '@prisma/client'
 
 import { NextRequest } from 'next/server'
+import { auth } from '../../../../../auth'
+import { headers } from 'next/headers'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const id = (await params).id
@@ -13,15 +15,22 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return Response.json({ error: 'Invalid id. Id cannot be undefined ' }, { status: 400 })
   }
 
+  const session = await auth.api.getSession({ headers: await headers() })
+
   try {
     const question = await prisma.question.findUnique({
       where: { id },
       include: {
-        answer: true,
-        falseTextOptions: { include: { answer: true } },
         questionTags: { include: { tag: true } }
       }
     })
+
+    if (question?.status !== 'APPROVED') {
+      if (session?.user.role !== 'ADMIN' && session?.user.id !== question?.userId) {
+        return Response.json({ error: 'Only admins or question owners can view questions that are not approved' }, { status: 403 })
+      }
+    }
+
     return Response.json({ question })
   } catch (e) {
     return Response.json({ error: 'An error occurred while fetching the question' }, { status: 500 })
@@ -32,22 +41,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const body = await request.json()
   const id = (await params).id
 
-  const parsedQuestion = patchTextQuestionInput.safeParse(body)
-  if (parsedQuestion.success === false) {
-    return Response.json({ error: parsedQuestion.error }, { status: 400 })
+  const session = await auth.api.getSession({ headers: await headers() })
+
+  if (!session) {
+    return Response.json({ error: 'You must be logged in to update a question' }, { status: 403 })
   }
-
-  // IF USER IS NOT AN ADMIN, THEY CANNOT UPDATE THE QUESTION
-
-  // THE ONLY EXCEPTION IS IF THIS IS THE USERS QUESTION
-
-  // if(user.id !== question.userId) {
-  //   return Response.json({ error: 'You do not have permission to update this question' }, { status: 403 })
-  // }
-
-  //if(user.role !== 'ADMIN') {
-  //  return Response.json({ error: 'Only admins or question owners can update questions' }, { status: 403 })
-  //}
 
   if (Array.isArray(id)) {
     return Response.json({ error: 'Invalid id. Id cannot be an array' }, { status: 400 })
@@ -63,6 +61,15 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       questionTags: { include: { tag: true } }
     }
   })
+
+  if (session.user.role !== 'ADMIN' && session.user.id !== originalQuestion?.userId) {
+    return Response.json({ error: 'Only admins can update questions' }, { status: 403 })
+  }
+
+  const parsedQuestion = patchTextQuestionInput.safeParse(body)
+  if (parsedQuestion.success === false) {
+    return Response.json({ error: parsedQuestion.error }, { status: 400 })
+  }
 
   const parsedQuestionData = parsedQuestion.data
 
@@ -108,8 +115,12 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         if (!parsedQuestionData.rejectionReason) {
           return Response.json({ error: 'Rejection reason is required when rejecting a question' }, { status: 400 })
         }
+        if (!parsedQuestionData.userId) {
+          return Response.json({ error: 'If rejecting, must pass a userId' }, { status: 403 })
+        }
         updateData.rejections = {
           create: {
+            userId: parsedQuestionData.userId,
             reason: parsedQuestionData.rejectionReason
           }
         }
@@ -121,15 +132,12 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (parsedQuestionData.question) updateData.question = parsedQuestionData.question
   if (parsedQuestionData.difficulty) updateData.difficulty = parsedQuestionData.difficulty
   if (parsedQuestionData.isNiche !== undefined) updateData.isNiche = parsedQuestionData.isNiche
-  if (parsedQuestionData.answer) updateData.answer = { update: { text: parsedQuestionData.answer } }
 
   try {
     const updatedQuestion = await prisma.question.update({
       where: { id },
       data: updateData,
       include: {
-        answer: true,
-        falseTextOptions: { include: { answer: true } },
         questionTags: { include: { tag: true } },
         rejections: true
       }

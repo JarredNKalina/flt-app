@@ -5,8 +5,10 @@ export const createTextQuestionInput = z.object({
   difficulty: z.enum(['EASY', 'MEDIUM', 'HARD']),
   isNiche: z.boolean().optional(),
   answer: z.string(),
-  falseOptions: z.array(z.string()).length(3),
-  tags: z.array(z.string()).min(1)
+  incorrect1: z.string(),
+  incorrect2: z.string(),
+  incorrect3: z.string(),
+  tags: z.array(z.string()).min(1),
 })
 
 export const patchTextQuestionInput = z.object({
@@ -16,15 +18,10 @@ export const patchTextQuestionInput = z.object({
   answer: z.string().optional(),
   status: z.enum(['APPROVED', 'PENDING', 'REJECTED']).optional(),
   rejectionReason: z.string().optional(),
-  falseOptions: z
-    .array(
-      z.object({
-        id: z.string().optional(), // If present, it's an existing tag
-        text: z.string()
-      })
-    )
-    .optional(),
-
+  incorrect1: z.string().optional(),
+  incorrect2: z.string().optional(),
+  incorrect3: z.string().optional(),
+  userId: z.string().optional(),
   tags: z
     .array(
       z.object({
