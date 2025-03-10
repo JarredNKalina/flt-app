@@ -12,14 +12,21 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true
+    requireEmailVerification: true,
+    sendResetPassword: async ({ user, url }) => {
+      resend.emails.send({
+        from: 'fortheloveoftrivia@resend.dev',
+        to: user.email,
+        subject: 'Reset your password',
+        text: `Click the link to reset your password: ${url}`
+      })
+    }
   },
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, token }) => {
-      const verificationUrl = `${process.env.BETTER_AUTH_URL}?token=${token}/api/auth/verify-email?token=${token}&EMAIL_VERIFICATION_CALLBACK_URL=${process.env.EMAIL_VERIFICATION_CALLBACK_URL}`
-
+      const verificationUrl = `${process.env.BETTER_AUTH_URL}/api/auth/verify-email?token=${token}&callbackURL=${process.env.EMAIL_VERIFICATION_CALLBACK_URL}`
       resend.emails.send({
         from: 'fortheloveoftrivia@resend.dev',
         subject: 'For the Love of Trivia - Verify Your Email',
